@@ -1,0 +1,2 @@
+DROP DATABASE testdb  *для удаления базы данных
+CREATE DATABASE test2db *создание базы данных
