@@ -1,0 +1,14 @@
+в папке с проектом телеграм бота создаем 3 файла:
+*requirements.txt (в котором перечисляем используемые библиотеки через энтр в каждой строке название библиотеки)
+*runtime.txt (версия пайтон с маленькой буквы) (python-3.10.4)
+*Procfile(без расширения, внутри указываем название файла бота и пишем)(worker: python bot.py)
+
+в консоли в папке с проектом:
+git init
+git add .
+git commit -m "First"
+heroku create weatherzzz  -(weatherzzz - название проекта, нужно уникальное имя)
+git remote -v
+git push heroku master
+heroku ps  (смотрим процесы)
+heroku ps:scale worker=1  (запускаем процес)
