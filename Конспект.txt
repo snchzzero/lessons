@@ -1,0 +1,82 @@
+"ctrl+/" -удаляет все коменты перед кодом
+
+Команды в терминале для проекта Django (Python)
+
+# Создаем новый проект django
+django-admin startproject password_generator 
+#(password_generator) - название проекта
+
+# Создаем внтури нашей папки проекта, новую папку generator (новое приложение)
+python manage.py startapp generator
+
+# Запускаем наш сервер
+python manage.py runserver
+# http://127.0.0.1:8000 - локальный адрес домашней страницы сервера 
+# localhost:8000 - тоже самое
+
+# Создаем учетку админа
+python manage.py createsuperuser
+# имя - snchz
+# пароль - django1234 (новый пароль - r3oP1bQ5J9Do)
+python manage.py changepassword snchz  # команда для изменения пароля
+
+# После создания класса в моделя, нужно выполнить миграцию иначе сервер не запустится
+# Миграция необходима, когда производятся изменения в базе данных
+python manage.py makemigratins
+python manage.py migrate
+
+
+----В Pythonanywhere в консоли
+# Чтобы создать виртуальное окружение
+mkvirtualenv --python=/usr/bin/python3.8 portfolioenv
+#portfolioenv - название виртуального окружения
+
+#что бы войти в созданное виртуальное окружение
+workon portfoliovenv/
+
+#что бы выйти из окружения
+deactivate
+
+#если забыл свое название виртуального окружения или просто посмотреть список окружений
+cd .virtualenvs/
+ls
+
+#устанавливает пакеты приложений
+pip install django pillow
+
+#для корректного отображения статических файлов(изображения, css и др.)
+#добавляем строчку в siting.py "STATIC_ROOT = BASE_DIR / 'static'"
+#вводим следующую команду в терминале для переноса всех статических файлов в новую созданную папку
+python manage.py collectstatic
+
+#проверка актуальности проекта согласно версии локальной
+python manage.py migrate
+
+#так же выполняем проверку измененных файлов в папке с меди статик
+python manage.py collectstatic
+____________________________________________________________
+
+#как перенести локальные изменения в онлайн версию сайта
+
+#проверка добавляли ли новые пакеты для проекта
+pip3 freeze > requirements.txt 
+
+#после обновления проекта на гите и выполнив git pull в pythonanywhere производим установку всех пакетов для нашего проекта в консоли 
+#pythonanywhere нашего виртуального окружения
+
+pip install -r requirements.txt
+
+___________________________________
+
+-----Для проекта ToDowoo-----
+# имя - snchz2
+# пароль - django1234
+
+# имя - snchz3
+# пароль - django1234
+
+# имя - snchz4
+# пароль - django1234
+
+# имя - snchz5
+# пароль - 1234

@@ -1,0 +1,25 @@
+#Проблема возникла после удаления ненужных веток в гитхаб в папке с репозитарием, проект перестал пушиться на сервер
+#при выполнении команды git push выскакивала ошибка:
+#"error: failed to push some to 'url'"
+#"hint: Updates were rejected because...."
+# в итоге сделал следующее
+git pull origin main --alow-unrelated-histories
+#произошло "* branch main -> FETCH_HEAD"
+
+#следующая команда возможно лишняя
+git branch --set-upstream-to=origin/main main
+"Branch 'main' set up to track remote branch 'main' from 'origin'"
+
+#затем набрал
+git add -A
+git commit -m "....."
+git push 
+___________________
+
+Общие принципы при заливки нового проекта
+git init #инициализация гит в папке с проектом
+git branch -M main #создаем ветку в папке с проектом куда будет сохранятся наш текущий проект
+git remote add origin https://github.com/.....  #добавляем в нашей папке с проектом сведения удаленного репозитария с названием origin
+git add -A #индуксируем все файлы локально
+git commit -m "message сообщение коммита" #создаем коммит изменения
+git push -u origin main #переносим локальные файлы из ветки main на удаленный репозит origin
