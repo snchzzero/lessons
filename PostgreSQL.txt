@@ -1,2 +1,211 @@
 DROP DATABASE testdb  *для удаления базы данных
 CREATE DATABASE test2db *создание базы данных
+
+
+------------------------------------------СВЯЗИ ОДИН КО МНОГИМ------------------------------------------
+---СОЗАДЕМ ТАБЛИЦЫ---
+CREATE TABLE publisher
+(
+	publisher_id integer PRIMARY KEY,
+	org_name varchar(128) NOT NULL,
+	adress text NOT NULL
+);
+
+CREATE TABLE book
+(
+	book_id integer PRIMARY KEY,
+	title text NOT NULL,
+	isbn varchar(32) NOT NULL,
+	fk_publisher_id integer REFERENCES publisher(publisher_id) NOT NULL
+)
+
+---УДАЛЕНИЕ ТАБЛИЦЫ---
+DROP TABLE publisher;
+DROP TABLE book
+
+--ИЗВЛЕЧЕНИЕ ДАННЫХ---
+SELECT *
+FROM  book
+(извлечение всех данных из таблицы)
+
+---ПРИМЕР ЗАПОЛЕНИЯ ДАННЫМИ ТАБЛИЦЫ---
+INSERT INTO book
+VALUES 
+(1, 'The Diry of a Young', '787897987', 1),
+(2, 'Wride and Prejuidice', '909023223', 1),
+(3, 'Fride and Prejuidice', '1209023223', 2),
+(4, 'sride and Prejuidice', '209022431223', 2),
+(5, 'Fride and Prejuidice', '30912323223', 2)
+
+INSERT INTO publisher
+VALUES
+(1, 'Every''s Library', 'NY'),
+(2, 'Dvery''s Library', 'NY'),
+(3, 'Rvery''s Library', 'Wash'),
+(4, 'Wvery''s Library', 'Chig')
+
+---ИЗМЕННЕИЯ ТАБЛИЦЫ (ДОБАВЛЕНИЯ СТОЛБЦОВ И ДОБАВЛЕНИЕ ВНЕШНЕГО КЛЮЧА)---
+ALTER TABLE book
+ADD COLUMN fk_publisher_id;
+
+ALTER TABLE book
+ADD CONSTRAINT fk_publisher 
+FOREIGN KEY (fk_publisher_id) REFERENCES publisher(publisher_id)  
+# добавление внешнего ключа
+
+
+------------------------------------------СВЯЗИ ОДИН К ОДНОМУ------------------------------------------
+--СОЗДАНИЕ ТАБЛИЦЫ И ДОАВЛЕНИЕ СТОЛБЦА-----
+
+ALTER TABLE passport
+ADD COLUMN registration text NOT NULL
+
+CREATE TABLE person
+(
+	person_id int PRIMARY KEY,
+	firts_name varchar(64) NOT NULL,
+	last_name varchar(64) NOT NULL
+);
+
+CREATE TABLE passport
+(
+	passport_id int PRIMARY KEY,
+	serial_number int NOT NULL,
+	fk_passport_person int REFERENCES person(person_id)
+)
+
+---ЗАПОЛЕНИЕ ТАБЛИЦЫ---
+INSERT INTO person VALUES (1, 'Саня', 'Санькович');
+INSERT INTO person VALUES (2, 'Олег', 'Олегович');
+INSERT INTO person VALUES (3, 'Влад', 'Владович');
+
+INSERT INTO passport VALUES (1, '54545', 1, 'Тула');
+INSERT INTO passport VALUES (2, '4545', 2, 'Калуга');
+INSERT INTO passport VALUES (3, '54545', 3, 'Москва');
+
+
+-----Д.З.---03 Соединения - Joins-----
+
+1. Найти заказчиков и обслуживающих их заказы сотрудников таких, что и заказчики и сотрудники из города London, а доставка идёт компанией Speedy Express. Вывести компанию заказчика и ФИО сотрудника.
+
+SELECT customers.company_name, last_name, first_name
+FROM customers
+JOIN orders USING (customer_id)
+JOIN employees USING (employee_id)
+JOIN shippers ON orders.ship_via = shipper_id
+WHERE customers.city = 'London' AND employees.city = 'London' 
+AND shippers.company_name = 'Speedy Express'
+
+2. Найти активные (см. поле discontinued) продукты из категории Beverages и Seafood, которых в продаже менее 20 единиц. Вывести наименование продуктов, кол-во единиц в продаже, имя контакта поставщика и его телефонный номер.
+
+SELECT product_name, units_in_stock, contact_name, phone
+FROM categories 
+JOIN products USING (category_id)
+JOIN suppliers USING (supplier_id)
+WHERE (categories.category_name = 'Beverages' or categories.category_name = 'Seafood') 
+AND products.discontinued = 0 AND units_in_stock < 20
+
+3. Найти заказчиков, не сделавших ни одного заказа. Вывести имя заказчика и order_id.
+
+SELECT contact_name, order_id
+FROM customers
+LEFT JOIN orders USING (customer_id)
+WHERE order_id is NULL
+
+4. Переписать предыдущий запрос, использовав симметричный вид джойна (подсказка: речь о LEFT и RIGHT).
+
+SELECT contact_name, order_id
+FROM orders
+RIGHT JOIN customers USING (customer_id)
+WHERE order_id is NULL
+
+-----Д.З.---09 Функции SQL и PL_pgSQL-----
+1. Создайте функцию, которая делает бэкап таблицы customers (копирует все данные в другую таблицу), предварительно стирая таблицу для бэкапа, если такая уже существует (чтобы в случае многократного запуска таблица для бэкапа перезатиралась).
+
+CREATE OR REPLACE FUNCTION get_copy() RETURNS SETOF customers AS $$
+	SELECT *
+	FROM customers
+$$ LANGUAGE SQL;
+
+2. Создать функцию, которая возвращает средний фрахт (freight) по всем заказам
+
+CREATE OR REPLACE FUNCTION get_avg_freight(OUT freight double precision) AS $$
+	SELECT AVG(freight)
+	FROM orders
+$$ LANGUAGE SQL;
+
+3. Написать функцию, которая принимает два целочисленных параметра, используемых как нижняя и верхняя границы для генерации случайного числа в пределах этой границы (включая сами граничные значения).
+
+Функция random генерирует вещественное число от 0 до 1.
+
+Необходимо вычислить разницу между границами и прибавить единицу.
+
+На полученное число умножить результат функции random() и прибавить к результату значение нижней границы.
+
+Применить функцию floor() к конечному результату, чтобы не "уехать" за границу и получить целое число.
+
+CREATE OR REPLACE FUNCTION get_random(down int, up int, OUT result int) AS $$
+BEGIN
+	result := FLOOR(RANDOM()*(up-down)+down)
+	RETURN;
+END;	
+$$ LANGUAGE plpgsql;
+
+4. Создать функцию, которая возвращает самые низкую и высокую зарплаты среди сотрудников заданного города
+
+DROP FUNCTION get_zp_employees
+CREATE OR REPLACE FUNCTION get_zp_employees
+(city_emp varchar, OUT min_zp real, OUT max_zp real) AS $$
+	SELECT MIN(employees.extension::real), MAX(employees.extension::real)
+	FROM employees
+	WHERE city = city_emp
+$$ LANGUAGE SQL;
+
+SELECT * FROM get_zp_employees('London')
+
+-----Д.З.---13 Массивы-----
+
+Написать функцию, которая фильтрует телефонные номера по коду оператора.
+
+Принимает 3-х значный код мобильного оператора и список телефонных номеров в формате +1(234)5678901 (variadic)
+
+Функция возвращает только те номера, код оператора которых соответствует значению соответствующего аргумента.
+
+Проверить функцию передав следующие аргументы:
+
+903, +7(903)1901235, +7(926)8567589, +7(903)1532476
+
+Попробовать передать аргументы с созданием массива и без.
+
+Подсказка: чтобы передать массив в VARIADIC-аргумент, надо перед массивом прописать, собственно, ключевое слово variadic.
+
+CREATE OR REPLACE FUNCTION telephone_number(code int,VARIADIC numbers text[]) RETURNS SETOF text AS $$
+DECLARE
+	tnumber text;
+BEGIN
+	FOREACH tnumber in ARRAY numbers
+	LOOP
+		IF tnumber LIKE CONCAT ('%', code::varchar, '%')  THEN RETURN NEXT tnumber;
+		END IF;
+	END LOOP;
+END;
+$$ LANGUAGE plpgsql;
+
+SELECT * FROM telephone_number(926, '+7(903)1901235', '+7(926)8567589', '+7(903)1532476')
+
+-----Д.З.---15 Продвинутая группировка с CUBE и ROLLUP-----
+
+2. Вывести отчёт показывающий сумму продаж по сотрудникам и странам отгрузки с подытогами по сотрудникам и общим итогом.
+SELECT orders.employee_id, ship_country, sum(unit_price * quantity) as suma
+FROM order_details
+JOIN orders USING (order_id)
+GROUP BY ROLLUP (orders.employee_id, ship_country)
+ORDER BY orders.employee_id, suma DESC
+
+
+3. Вывести отчёт показывающий сумму продаж по сотрудникам, странам отгрузки, сотрудникам и странам отгрузки с подытогами по сотрудникам и общим итогом.
+SELECT orders.employee_id, ship_country, sum(unit_price * quantity) as suma
+FROM order_details
+JOIN orders USING (order_id)
+GROUP BY CUBE (orders.employee_id, ship_country)
+ORDER BY orders.employee_id, suma

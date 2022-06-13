@@ -1,0 +1,25 @@
+-через терминал заходим в папку с нашим проектом
+-pip install psycopg2 - устанавливаем пакет
+-python manage.py dumpdata > datadump.json  -переносим данные из старой БД во временный файл 
+-Затем в пайчар открываем в проекте файл datadump.json и меняем кодировку (если используется кирилица то на windows-1251...ИСПОЛЬЗОВАТЬ КОДИРОВКУ UTF-8!!!)
+- в файле sitings.py в нашем проекте изменяем сведения по базе данных:
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'job_directory',
+#         'USER': 'postgres',
+#         'PASSWORD': '123',
+#         'HOST': 'localhost',
+#         'PORT': '5432',
+#     }
+# }
+имя БД, имя пользователя, пароль берем из pgADMIN где ранее создали базу данных
+-в терминале (синхронизация)
+python manage.py migrate --run-syncdb
+- затем удаляем пакетные файлы БД postgres
+python manage.py shell
+from django.contrib.contenttypes.models import ContentType
+ContentType.objects.all().delete()
+exit()
+-
+python manage.py loaddata datadump.json -переносим обратно из временного файла в БД postgres (у json кодировку изменить на utf-8 иначе ошибка будет)
