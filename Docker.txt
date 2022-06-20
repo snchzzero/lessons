@@ -1,0 +1,28 @@
+Создать новый образ проекта в папке проекта где содержится файл Docker
+docker build -t google_sheets_cbr_django .
+
+Запуск докер образа под контейнером с именем dj
+docker run --name dj google_sheets_cbr_django
+
+Просмотр активных контейнеров
+docker ps
+
+Просмотр всех контейнеров
+docker ps -a
+
+Просмотр всех образов
+docker images
+
+Удалить контейнер с именем dj
+docker container rm dj
+
+Удалить образ по номеру или имени
+docker rmi fcb365cff5b1
+
+
+
+Для билда docker-compose.yml
+docker-compose build
+
+Запуск компоса
+docker-compose up

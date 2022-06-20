@@ -1,0 +1,11 @@
+в консоли, в папке с проектом, что бы создать новое виртуальное окружение
+python -m venv env
+
+установка необходимых пакетов
+pip install google-api-python-client oauth2client
+
+переходим по сылке
+https://console.cloud.google.com/apis/dashboard?hl=RU&pli=1&project=osmc-272318
+
+*для подключения БД postgresql устанавливаем библиотеку
+pip install -U psycopg2-binary
