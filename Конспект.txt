@@ -86,6 +86,7 @@ ___________________________________
 
 ___________________________________
 
+Django
     # внесение данных в модель БД вручную
     # insert = Models(number_Model = 45, order_Model = 122,
     #                 value_dolar_Model = 23, value_rub_Model =666,
